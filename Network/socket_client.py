@@ -1,5 +1,6 @@
 import socket
 import threading
+from protocol import serialize, deserialize
 
 HOST = '192.168.1.103'
 PORT = 9090
@@ -27,8 +28,8 @@ class SocketClient:
             print("Client not connected")
             return
 
-        encoded = message.encode('utf-8')
-        self.client_socket.send(encoded)
+        data = serialize(message)
+        self.client_socket.send(data)
 
     def receive_message(self):
         try:
@@ -37,7 +38,7 @@ class SocketClient:
             if not server_message:
                 return None
 
-            return server_message.decode('utf-8')
+            return deserialize(server_message)
 
         except:
             return None
@@ -51,7 +52,7 @@ class SocketClient:
                 self.close_client()
                 break
 
-            print(f"Server: {message}")
+            print("Server message:", message)
 
     def close_client(self):
         self.connected = False
@@ -60,3 +61,7 @@ class SocketClient:
             self.client_socket.close()
 
         print("Client Closed")
+
+client  = SocketClient(HOST,PORT)
+client.server_connect()
+client.send_message("Hello")
